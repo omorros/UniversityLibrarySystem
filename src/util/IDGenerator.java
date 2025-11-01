@@ -1,4 +1,4 @@
 package util;
 
-public class IDGenerator {
+public interface IDGenerator {
 }
