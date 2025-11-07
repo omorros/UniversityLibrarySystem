@@ -58,7 +58,7 @@ public class Menu {
             }
             default -> {
                 system.setDemoUser(new AdultUser(99, "Default", "default@library.com"));
-                System.out.println("⚠ Invalid choice, logged in as default AdultUser.");
+                System.out.println("Invalid choice, logged in as default AdultUser.");
             }
         }
     }
