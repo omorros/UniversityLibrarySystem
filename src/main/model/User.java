@@ -3,6 +3,7 @@ package main.model;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Base abstract class for library users. */
 public abstract class User {
     protected int userId;
     protected String name;
@@ -27,7 +28,7 @@ public abstract class User {
         Loan loan = new Loan(IDGenerator.nextId(), this, product, policy);
         loans.add(loan);
         product.setAvailable(false);
-        System.out.println("Borrow successful: " + product.getTitle());
+        System.out.println("Borrowed successfully: " + product.getTitle());
         return true;
     }
 
@@ -40,6 +41,7 @@ public abstract class User {
                 return true;
             }
         }
+        System.out.println("Loan not found for: " + product.getTitle());
         return false;
     }
 
