@@ -1,7 +1,8 @@
 package main.model;
 
+/** Defines borrowing policies (loan period, fine, renewals). */
 public class Policy {
-    private int loanPeriod;  // days
+    private int loanPeriod;
     private int maxRenewals;
     private double dailyFine;
 

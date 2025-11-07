@@ -3,9 +3,7 @@ package main.model;
 import java.util.ArrayList;
 import java.util.List;
 
-/**
- * Represents an adult library member who can have child dependents.
- */
+/** Represents an adult user who can have dependents. */
 public class AdultUser extends User {
     private List<ChildUser> dependants;
 
@@ -25,6 +23,6 @@ public class AdultUser extends User {
 
     @Override
     public String toString() {
-        return "AdultUser: " + name + " (" + email + "), Dependants: " + dependants.size();
+        return "AdultUser: " + name + " | Dependants: " + dependants.size();
     }
 }

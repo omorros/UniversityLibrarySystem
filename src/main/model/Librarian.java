@@ -2,9 +2,7 @@ package main.model;
 
 import java.util.List;
 
-/**
- * Represents a librarian responsible for managing users and products.
- */
+/** Represents a librarian responsible for managing users and products. */
 public class Librarian extends User {
 
     public Librarian(int userId, String name, String email) {
@@ -13,7 +11,7 @@ public class Librarian extends User {
 
     public void registerUser(List<User> users, User newUser) {
         users.add(newUser);
-        System.out.println("Registered user: " + newUser.getName());
+        System.out.println("User registered: " + newUser.getName());
     }
 
     public boolean removeUser(List<User> users, int id) {
@@ -22,7 +20,7 @@ public class Librarian extends User {
 
     public void addProduct(List<Product> products, Product p) {
         products.add(p);
-        System.out.println("Added product: " + p.getTitle());
+        System.out.println("Product added: " + p.getTitle());
     }
 
     public boolean removeProduct(List<Product> products, int id) {
@@ -30,10 +28,10 @@ public class Librarian extends User {
     }
 
     public String generateReport(List<Loan> loans) {
-        StringBuilder report = new StringBuilder("Library Loan Report\n");
+        StringBuilder sb = new StringBuilder("Library Loan Report:\n");
         for (Loan loan : loans) {
-            report.append(loan.getInfo()).append("\n");
+            sb.append(loan.getInfo()).append("\n");
         }
-        return report.toString();
+        return sb.toString();
     }
 }

@@ -1,8 +1,6 @@
 package main.model;
 
-/**
- * Represents a child user with a guardian (AdultUser).
- */
+/** Represents a child user with an adult guardian. */
 public class ChildUser extends User {
     private AdultUser guardian;
 

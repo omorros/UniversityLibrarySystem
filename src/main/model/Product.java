@@ -2,6 +2,7 @@ package main.model;
 
 /**
  * Abstract base class representing a library product.
+ * Demonstrates abstraction and encapsulation.
  */
 public abstract class Product {
     protected int productId;
@@ -23,7 +24,7 @@ public abstract class Product {
     }
 
     public String getInfo() {
-        return "ID: " + productId + ", Title: " + title + ", Available: " + available;
+        return "ID: " + productId + " | Title: " + title + " | Available: " + available;
     }
 
     @Override

@@ -2,6 +2,7 @@ package main.model;
 
 import java.time.LocalDate;
 
+/** Represents a loan transaction between user and product. */
 public class Loan {
     private int loanId;
     private User borrower;
@@ -23,9 +24,7 @@ public class Loan {
     public Product getItem() { return item; }
     public void setReturnDate(LocalDate date) { this.returnDate = date; }
 
-    public boolean isOverdue(LocalDate date) {
-        return dueDate.isBefore(date);
-    }
+    public boolean isOverdue(LocalDate date) { return dueDate.isBefore(date); }
 
     public boolean renew(Policy policy) {
         if (renewCount < policy.getMaxRenewals()) {
@@ -37,7 +36,7 @@ public class Loan {
     }
 
     public String getInfo() {
-        return "Loan #" + loanId + " for " + item.getTitle() +
+        return "Loan #" + loanId + " | " + item.getTitle() +
                 " | Due: " + dueDate + " | Renewals: " + renewCount;
     }
 }

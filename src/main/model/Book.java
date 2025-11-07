@@ -1,5 +1,6 @@
 package main.model;
 
+/** Represents a Book product (Inheritance + Polymorphism). */
 public class Book extends Product {
     private String author;
     private String isbn;
