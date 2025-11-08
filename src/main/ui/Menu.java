@@ -146,10 +146,38 @@ public class Menu {
     // RETURN MENU
     // -------------------------------------------
     private static void returnProduct() {
-        System.out.print("Enter Product ID to return: ");
+        User user = system.getDemoUser();
+        List<Loan> userLoans = user.viewLoans();
+
+        System.out.println("\n===== Return Product =====");
+        if (userLoans.isEmpty()) {
+            System.out.println("You have no active loans to return.");
+            return;
+        }
+
+        System.out.println("Your current loans:");
+        for (Loan loan : userLoans) {
+            System.out.println(loan.getInfo());
+        }
+
+        System.out.print("\nEnter the Product ID to return: ");
         int id = readInt();
-        system.handleReturn(system.getDemoUser(), id);
+
+        Product product = system.findProductById(id);
+        if (product == null) {
+            System.out.println("Product not found.");
+            return;
+        }
+
+        boolean success = user.returnProduct(product);
+        if (success) {
+            product.setAvailable(true);
+            System.out.println("Return successful: " + product.getTitle());
+        } else {
+            System.out.println("Return failed. Ensure you borrowed this item.");
+        }
     }
+
 
     // -------------------------------------------
     // INPUT VALIDATION
