@@ -2,7 +2,7 @@ package main.model;
 
 import java.time.LocalDate;
 
-/** Represents a loan transaction between user and product. */
+/** Represents a loan transaction between a user and a product. */
 public class Loan {
     private int loanId;
     private User borrower;
@@ -21,10 +21,21 @@ public class Loan {
         this.renewCount = 0;
     }
 
-    public Product getItem() { return item; }
-    public void setReturnDate(LocalDate date) { this.returnDate = date; }
+    public Product getItem() {
+        return item;
+    }
 
-    public boolean isOverdue(LocalDate date) { return dueDate.isBefore(date); }
+    public User getBorrower() {
+        return borrower;
+    }
+
+    public void setReturnDate(LocalDate date) {
+        this.returnDate = date;
+    }
+
+    public boolean isOverdue(LocalDate date) {
+        return dueDate.isBefore(date);
+    }
 
     public boolean renew(Policy policy) {
         if (renewCount < policy.getMaxRenewals()) {
@@ -35,8 +46,18 @@ public class Loan {
         return false;
     }
 
+    /**
+     * Returns formatted information about the loan,
+     * including the product type and borrower details.
+     */
     public String getInfo() {
-        return "Loan #" + loanId + " | " + item.getTitle() +
-                " | Due: " + dueDate + " | Renewals: " + renewCount;
+        String productType = item.getClass().getSimpleName();
+        String userType = borrower.getClass().getSimpleName();
+        return "Loan #" + loanId +
+                " | Type: " + productType +
+                " | Title: " + item.getTitle() +
+                " | Borrower: " + borrower.getName() + " [" + userType + "]" +
+                " | Due: " + dueDate +
+                " | Renewals: " + renewCount;
     }
 }
