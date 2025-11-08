@@ -26,7 +26,6 @@ public class LibrarySystem {
     // Load Data from CSV Files
     // -------------------------------
     public void loadAllData() {
-        // Clear previous data to avoid duplicates
         products.clear();
 
         products.addAll(DataLoader.loadBooks());
@@ -47,6 +46,9 @@ public class LibrarySystem {
                 .orElse(null);
     }
 
+    /**
+     * Handles borrowing logic, creating a single Loan instance added to both system and user records.
+     */
     public void handleBorrow(User user, int productId) {
         Product product = findProductById(productId);
         if (product == null) {
@@ -61,7 +63,7 @@ public class LibrarySystem {
         if (user.borrowProduct(product, policy)) {
             Loan loan = new Loan(IDGenerator.nextId(), user, product, policy);
             loans.add(loan);
-            product.setAvailable(false);
+            user.viewLoans().add(loan);
             System.out.println(user.getName() + " borrowed: " + product.getTitle());
         }
     }
@@ -74,8 +76,10 @@ public class LibrarySystem {
         }
 
         if (user.returnProduct(product)) {
-            product.setAvailable(true);
-            System.out.println(product.getTitle() + " returned successfully.");
+            loans.removeIf(l -> l.getItem().equals(product) && l.getBorrower().equals(user));
+            System.out.println("Return successful: " + product.getTitle());
+        } else {
+            System.out.println("Return failed. Ensure you borrowed this item.");
         }
     }
 
@@ -101,7 +105,7 @@ public class LibrarySystem {
     }
 
     // -------------------------------
-    // Optional Utility
+    // Utility
     // -------------------------------
     public void reloadData() {
         System.out.println("Reloading data from CSV files...");
