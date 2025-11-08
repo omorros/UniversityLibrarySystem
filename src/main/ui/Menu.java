@@ -5,31 +5,18 @@ import java.util.Scanner;
 
 /**
  * Console menu interface for the library system.
- * Includes a login menu to choose between Adult, Child, or Student users.
+ * Now supports dynamic data loading from CSV files.
  */
 public class Menu {
     private static LibrarySystem system = new LibrarySystem();
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
-        preloadData();
-        loginMenu();    // NEW login menu
-        runMenu();      // Main library menu
+        system.loadAllData(); // Load from CSVs
+        loginMenu();
+        runMenu();
     }
 
-    /**
-     * Preloads some demo products into the library system.
-     */
-    private static void preloadData() {
-        system.addProduct(new Book(1, "The Hobbit", "J.R.R. Tolkien", "978-0261", "Fantasy"));
-        system.addProduct(new DVD(2, "Inception", "Christopher Nolan"));
-        system.addProduct(new CD(3, "Mozart Classics", "Mozart"));
-        system.addProduct(new Audiobook(4, "Atomic Habits", "James Clear"));
-    }
-
-    /**
-     * Allows user to select a user category (Adult, Child, or Student).
-     */
     private static void loginMenu() {
         System.out.println("===== Library Login =====");
         System.out.println("Select user type:");
@@ -63,9 +50,6 @@ public class Menu {
         }
     }
 
-    /**
-     * Main operational menu.
-     */
     private static void runMenu() {
         int choice;
         do {
@@ -82,7 +66,7 @@ public class Menu {
             choice = readInt();
 
             switch (choice) {
-                case 1 -> system.displayAllProducts();
+                case 1 -> viewProductsMenu();
                 case 2 -> borrow();
                 case 3 -> returnProduct();
                 case 4 -> system.displayAllLoans();
@@ -90,6 +74,24 @@ public class Menu {
                 default -> System.out.println("Invalid option, try again.");
             }
         } while (choice != 5);
+    }
+
+    private static void viewProductsMenu() {
+        System.out.println("\nSelect category to view:");
+        System.out.println("1. Books");
+        System.out.println("2. CDs");
+        System.out.println("3. DVDs");
+        System.out.println("4. Audiobooks");
+        System.out.print("Enter option: ");
+        int opt = readInt();
+
+        switch (opt) {
+            case 1 -> DataLoader.loadBooks().forEach(b -> System.out.println(b.getInfo()));
+            case 2 -> DataLoader.loadCDs().forEach(c -> System.out.println(c.getInfo()));
+            case 3 -> DataLoader.loadDVDs().forEach(d -> System.out.println(d.getInfo()));
+            case 4 -> DataLoader.loadAudiobooks().forEach(a -> System.out.println(a.getInfo()));
+            default -> System.out.println("Invalid option.");
+        }
     }
 
     private static void borrow() {
