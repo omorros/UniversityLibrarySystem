@@ -1,22 +1,26 @@
 package main.ui;
 
 import main.model.*;
+import java.util.List;
 import java.util.Scanner;
 
 /**
  * Console menu interface for the library system.
- * Now supports dynamic data loading from CSV files.
+ * Provides a clear user experience for viewing and borrowing items by category.
  */
 public class Menu {
     private static LibrarySystem system = new LibrarySystem();
     private static Scanner sc = new Scanner(System.in);
 
     public static void main(String[] args) {
-        system.loadAllData(); // Load from CSVs
+        system.loadAllData(); // Load from CSV files
         loginMenu();
         runMenu();
     }
 
+    // -------------------------------------------
+    // LOGIN MENU
+    // -------------------------------------------
     private static void loginMenu() {
         System.out.println("===== Library Login =====");
         System.out.println("Select user type:");
@@ -32,15 +36,14 @@ public class Menu {
                 System.out.println("Logged in as AdultUser: Dhrew");
             }
             case 2 -> {
-                ChildUser child = new ChildUser(2, "Sara", "Sara@mail.com");
+                ChildUser child = new ChildUser(2, "Sara", "sara@mail.com");
                 AdultUser guardian = new AdultUser(10, "Parent", "parent@mail.com");
                 guardian.addChild(child);
                 system.setDemoUser(child);
                 System.out.println("Logged in as ChildUser: Sara (Guardian: Parent)");
             }
             case 3 -> {
-                system.setDemoUser(new Student(3, "Oriol", "omorros@aru.ac.uk",
-                        "Software Engineering", 3));
+                system.setDemoUser(new Student(3, "Oriol", "omorros@aru.ac.uk", "Software Engineering", 3));
                 System.out.println("Logged in as Student: Oriol");
             }
             default -> {
@@ -50,12 +53,14 @@ public class Menu {
         }
     }
 
+    // -------------------------------------------
+    // MAIN MENU
+    // -------------------------------------------
     private static void runMenu() {
         int choice;
         do {
             System.out.println("\n===== University Library System =====");
-            System.out.println("Logged in as: " +
-                    system.getDemoUser().getClass().getSimpleName() +
+            System.out.println("Logged in as: " + system.getDemoUser().getClass().getSimpleName() +
                     " (" + system.getDemoUser().getName() + ")");
             System.out.println("1. View Products");
             System.out.println("2. Borrow Product");
@@ -67,15 +72,18 @@ public class Menu {
 
             switch (choice) {
                 case 1 -> viewProductsMenu();
-                case 2 -> borrow();
+                case 2 -> borrowMenu();
                 case 3 -> returnProduct();
                 case 4 -> system.displayAllLoans();
-                case 5 -> System.out.println("Exiting system... Goodbye!");
+                case 5 -> System.out.println("Exiting system...");
                 default -> System.out.println("Invalid option, try again.");
             }
         } while (choice != 5);
     }
 
+    // -------------------------------------------
+    // PRODUCT VIEW MENU
+    // -------------------------------------------
     private static void viewProductsMenu() {
         System.out.println("\nSelect category to view:");
         System.out.println("1. Books");
@@ -94,18 +102,58 @@ public class Menu {
         }
     }
 
-    private static void borrow() {
+    // -------------------------------------------
+    // BORROW MENU
+    // -------------------------------------------
+    private static void borrowMenu() {
+        System.out.println("\nSelect category to borrow from:");
+        System.out.println("1. Book");
+        System.out.println("2. CD");
+        System.out.println("3. DVD");
+        System.out.println("4. Audiobook");
+        System.out.print("Enter option: ");
+        int opt = readInt();
+
+        List<? extends Product> categoryList = switch (opt) {
+            case 1 -> DataLoader.loadBooks();
+            case 2 -> DataLoader.loadCDs();
+            case 3 -> DataLoader.loadDVDs();
+            case 4 -> DataLoader.loadAudiobooks();
+            default -> null;
+        };
+
+        if (categoryList == null) {
+            System.out.println("Invalid option.");
+            return;
+        }
+
+        if (categoryList.isEmpty()) {
+            System.out.println("No products available in this category.");
+            return;
+        }
+
+        System.out.println("\nAvailable items:");
+        categoryList.forEach(p -> System.out.println(p.getInfo()));
+
         System.out.print("Enter Product ID to borrow: ");
         int id = readInt();
+
+        // Now find and borrow directly from the system’s master list (not just this category)
         system.handleBorrow(system.getDemoUser(), id);
     }
 
+    // -------------------------------------------
+    // RETURN MENU
+    // -------------------------------------------
     private static void returnProduct() {
         System.out.print("Enter Product ID to return: ");
         int id = readInt();
         system.handleReturn(system.getDemoUser(), id);
     }
 
+    // -------------------------------------------
+    // INPUT VALIDATION
+    // -------------------------------------------
     private static int readInt() {
         try {
             return Integer.parseInt(sc.nextLine());
