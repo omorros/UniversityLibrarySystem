@@ -1,6 +1,7 @@
 package main.model;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 /** Base abstract class for library users. */
@@ -20,23 +21,31 @@ public abstract class User {
     public String getName() { return name; }
     public String getEmail() { return email; }
 
+    /**
+     * Handles borrowing a product.
+     * The Loan object is created externally (in LibrarySystem) to maintain consistent IDs.
+     */
     public boolean borrowProduct(Product product, Policy policy) {
         if (!product.isAvailable()) {
             System.out.println("Product not available.");
             return false;
         }
-        Loan loan = new Loan(IDGenerator.nextId(), this, product, policy);
-        loans.add(loan);
         product.setAvailable(false);
         System.out.println("Borrowed successfully: " + product.getTitle());
         return true;
     }
 
+    /**
+     * Returns a borrowed product if found and removes the corresponding loan.
+     */
     public boolean returnProduct(Product product) {
-        for (Loan loan : loans) {
+        Iterator<Loan> iterator = loans.iterator();
+        while (iterator.hasNext()) {
+            Loan loan = iterator.next();
             if (loan.getItem().equals(product)) {
                 loan.setReturnDate(java.time.LocalDate.now());
                 product.setAvailable(true);
+                iterator.remove(); // remove from user's list
                 System.out.println("Returned: " + product.getTitle());
                 return true;
             }
