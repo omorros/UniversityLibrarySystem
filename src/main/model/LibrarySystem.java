@@ -111,4 +111,9 @@ public class LibrarySystem {
         System.out.println("Reloading data from CSV files...");
         loadAllData();
     }
+
+    public void removeLoanRecord(Product product, User user) {
+        loans.removeIf(l -> l.getItem().equals(product) && l.getBorrower().equals(user));
+    }
+
 }

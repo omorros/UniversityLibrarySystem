@@ -2,11 +2,12 @@ package main.ui;
 
 import main.model.*;
 import java.util.List;
+import java.util.ArrayList;
 import java.util.Scanner;
 
 /**
  * Console menu interface for the library system.
- * Provides a clear user experience for viewing and borrowing items by category.
+ * Provides a clear, role-based user experience for viewing, borrowing, and returning products.
  */
 public class Menu {
     private static LibrarySystem system = new LibrarySystem();
@@ -43,7 +44,8 @@ public class Menu {
                 System.out.println("Logged in as ChildUser: Sara (Guardian: Parent)");
             }
             case 3 -> {
-                system.setDemoUser(new Student(3, "Oriol", "omorros@aru.ac.uk", "Software Engineering", 3));
+                system.setDemoUser(new Student(3, "Oriol", "omorros@aru.ac.uk",
+                        "Software Engineering", 3));
                 System.out.println("Logged in as Student: Oriol");
             }
             default -> {
@@ -60,7 +62,8 @@ public class Menu {
         int choice;
         do {
             System.out.println("\n===== University Library System =====");
-            System.out.println("Logged in as: " + system.getDemoUser().getClass().getSimpleName() +
+            System.out.println("Logged in as: " +
+                    system.getDemoUser().getClass().getSimpleName() +
                     " (" + system.getDemoUser().getName() + ")");
             System.out.println("1. View Products");
             System.out.println("2. Borrow Product");
@@ -82,49 +85,64 @@ public class Menu {
     }
 
     // -------------------------------------------
-    // PRODUCT VIEW MENU
+    // VIEW PRODUCTS MENU
     // -------------------------------------------
     private static void viewProductsMenu() {
+        User currentUser = system.getDemoUser();
+
+        boolean isAdult = currentUser instanceof AdultUser;
+        boolean isStudent = currentUser instanceof Student;
+        boolean isChild = currentUser instanceof ChildUser;
+
         System.out.println("\nSelect category to view:");
-        System.out.println("1. Books");
-        System.out.println("2. CDs");
-        System.out.println("3. DVDs");
-        System.out.println("4. Audiobooks");
-        System.out.print("Enter option: ");
-        int opt = readInt();
 
-        switch (opt) {
-            case 1 -> DataLoader.loadBooks().forEach(b -> System.out.println(b.getInfo()));
-            case 2 -> DataLoader.loadCDs().forEach(c -> System.out.println(c.getInfo()));
-            case 3 -> DataLoader.loadDVDs().forEach(d -> System.out.println(d.getInfo()));
-            case 4 -> DataLoader.loadAudiobooks().forEach(a -> System.out.println(a.getInfo()));
-            default -> System.out.println("Invalid option.");
-        }
-    }
-
-    // -------------------------------------------
-    // BORROW MENU
-    // -------------------------------------------
-    private static void borrowMenu() {
-        System.out.println("\nSelect category to borrow from:");
-        System.out.println("1. Book");
-        System.out.println("2. CD");
-        System.out.println("3. DVD");
-        System.out.println("4. Audiobook");
-        System.out.print("Enter option: ");
-        int opt = readInt();
-
-        List<? extends Product> categoryList = switch (opt) {
-            case 1 -> DataLoader.loadBooks();
-            case 2 -> DataLoader.loadCDs();
-            case 3 -> DataLoader.loadDVDs();
-            case 4 -> DataLoader.loadAudiobooks();
-            default -> null;
-        };
-
-        if (categoryList == null) {
-            System.out.println("Invalid option.");
+        if (isAdult) {
+            System.out.println("1. Books");
+            System.out.println("2. CDs");
+            System.out.println("3. DVDs");
+            System.out.println("4. Audiobooks");
+        } else if (isStudent) {
+            System.out.println("1. Books");
+            System.out.println("2. Audiobooks");
+        } else if (isChild) {
+            System.out.println("1. Books");
+        } else {
+            System.out.println("Invalid user type.");
             return;
+        }
+
+        System.out.print("Enter option: ");
+        int opt = readInt();
+
+        List<? extends Product> categoryList = new ArrayList<>();
+
+        if (isAdult) {
+            switch (opt) {
+                case 1 -> categoryList = DataLoader.loadBooks();
+                case 2 -> categoryList = DataLoader.loadCDs();
+                case 3 -> categoryList = DataLoader.loadDVDs();
+                case 4 -> categoryList = DataLoader.loadAudiobooks();
+                default -> {
+                    System.out.println("Invalid option.");
+                    return;
+                }
+            }
+        } else if (isStudent) {
+            switch (opt) {
+                case 1 -> categoryList = DataLoader.loadBooks();
+                case 2 -> categoryList = DataLoader.loadAudiobooks();
+                default -> {
+                    System.out.println("Invalid option.");
+                    return;
+                }
+            }
+        } else if (isChild) {
+            if (opt == 1) {
+                categoryList = DataLoader.loadBooks();
+            } else {
+                System.out.println("Invalid option.");
+                return;
+            }
         }
 
         if (categoryList.isEmpty()) {
@@ -133,17 +151,92 @@ public class Menu {
         }
 
         System.out.println("\nAvailable items:");
-        categoryList.forEach(p -> System.out.println(p.getInfo()));
+        categoryList.stream()
+                .filter(Product::isAvailable)
+                .forEach(p -> System.out.println(p.getInfo()));
+    }
 
-        System.out.print("Enter Product ID to borrow: ");
+    // -------------------------------------------
+    // BORROW PRODUCT MENU (ROLE-BASED)
+    // -------------------------------------------
+    private static void borrowMenu() {
+        User currentUser = system.getDemoUser();
+
+        System.out.println("\n===== Borrow Product =====");
+
+        boolean isAdult = currentUser instanceof AdultUser;
+        boolean isStudent = currentUser instanceof Student;
+        boolean isChild = currentUser instanceof ChildUser;
+
+        System.out.println("Select a category to borrow from:");
+
+        if (isAdult) {
+            System.out.println("1. Book");
+            System.out.println("2. CD");
+            System.out.println("3. DVD");
+            System.out.println("4. Audiobook");
+        } else if (isStudent) {
+            System.out.println("1. Book");
+            System.out.println("2. Audiobook");
+        } else if (isChild) {
+            System.out.println("1. Book");
+        } else {
+            System.out.println("Invalid user type.");
+            return;
+        }
+
+        System.out.print("Enter option: ");
+        int opt = readInt();
+
+        List<? extends Product> categoryList = new ArrayList<>();
+
+        if (isAdult) {
+            switch (opt) {
+                case 1 -> categoryList = DataLoader.loadBooks();
+                case 2 -> categoryList = DataLoader.loadCDs();
+                case 3 -> categoryList = DataLoader.loadDVDs();
+                case 4 -> categoryList = DataLoader.loadAudiobooks();
+                default -> {
+                    System.out.println("Invalid option.");
+                    return;
+                }
+            }
+        } else if (isStudent) {
+            switch (opt) {
+                case 1 -> categoryList = DataLoader.loadBooks();
+                case 2 -> categoryList = DataLoader.loadAudiobooks();
+                default -> {
+                    System.out.println("Invalid option.");
+                    return;
+                }
+            }
+        } else if (isChild) {
+            if (opt == 1) {
+                categoryList = DataLoader.loadBooks();
+            } else {
+                System.out.println("Invalid option.");
+                return;
+            }
+        }
+
+        if (categoryList.isEmpty()) {
+            System.out.println("No products available in this category.");
+            return;
+        }
+
+        System.out.println("\nAvailable items:");
+        categoryList.stream()
+                .filter(Product::isAvailable)
+                .forEach(p -> System.out.println(p.getInfo()));
+
+        System.out.print("\nEnter Product ID to borrow: ");
         int id = readInt();
 
-        // Now find and borrow directly from the system’s master list (not just this category)
         system.handleBorrow(system.getDemoUser(), id);
     }
 
     // -------------------------------------------
-    // RETURN MENU
+    // RETURN PRODUCT MENU
     // -------------------------------------------
     private static void returnProduct() {
         User user = system.getDemoUser();
@@ -172,6 +265,8 @@ public class Menu {
         boolean success = user.returnProduct(product);
         if (success) {
             product.setAvailable(true);
+            // Remove from the system’s master list of loans
+            system.removeLoanRecord(product, user);
             System.out.println("Return successful: " + product.getTitle());
         } else {
             System.out.println("Return failed. Ensure you borrowed this item.");
@@ -190,3 +285,4 @@ public class Menu {
         }
     }
 }
+
