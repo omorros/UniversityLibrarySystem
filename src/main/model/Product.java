@@ -2,9 +2,9 @@ package main.model;
 
 /**
  * Abstract base class representing a library product.
- * Demonstrates abstraction and encapsulation.
+ * Demonstrates abstraction, encapsulation, and interface implementation.
  */
-public abstract class Product {
+public abstract class Product implements Borrowable {
     protected int productId;
     protected String title;
     protected boolean available;
@@ -15,16 +15,37 @@ public abstract class Product {
         this.available = true;
     }
 
-    public int getProductId() { return productId; }
-    public String getTitle() { return title; }
-    public boolean isAvailable() { return available; }
+    // -----------------------------------
+    // Product-specific methods
+    // -----------------------------------
+    public int getProductId() {
+        return productId;
+    }
 
+    public String getTitle() {
+        return title;
+    }
+
+    // -----------------------------------
+    // Borrowable interface implementation
+    // -----------------------------------
+    @Override
+    public boolean isAvailable() {
+        return available;
+    }
+
+    @Override
     public void setAvailable(boolean available) {
         this.available = available;
     }
 
+    /**
+     * Returns product info including availability status.
+     */
+    @Override
     public String getInfo() {
-        return "ID: " + productId + " | Title: " + title + " | Available: " + available;
+        String status = available ? "Available" : "Checked Out";
+        return "ID: " + productId + " | Title: " + title + " | Status: " + status;
     }
 
     @Override
