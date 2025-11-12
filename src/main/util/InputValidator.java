@@ -1,4 +1,4 @@
-package main.model;
+package main.util;
 
 /** Simple utility class for input validation. */
 public class InputValidator {
