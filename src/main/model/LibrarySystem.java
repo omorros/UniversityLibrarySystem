@@ -100,9 +100,15 @@ public class LibrarySystem {
         if (loans.isEmpty()) {
             System.out.println("No loans currently registered.");
         } else {
-            loans.forEach(l -> System.out.println(l.getInfo()));
+            for (Loan loan : loans) {
+                System.out.println(loan.getInfo());
+                // Use the nested Reminder class to show due date status
+                Loan.Reminder reminder = loan.new Reminder();
+                reminder.showReminder();
+            }
         }
     }
+
 
     // -------------------------------
     // Utility

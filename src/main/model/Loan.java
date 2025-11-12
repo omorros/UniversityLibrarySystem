@@ -1,6 +1,7 @@
 package main.model;
 
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 /** Represents a loan transaction between a user and a product. */
 public class Loan {
@@ -21,21 +22,10 @@ public class Loan {
         this.renewCount = 0;
     }
 
-    public Product getItem() {
-        return item;
-    }
-
-    public User getBorrower() {
-        return borrower;
-    }
-
-    public void setReturnDate(LocalDate date) {
-        this.returnDate = date;
-    }
-
-    public boolean isOverdue(LocalDate date) {
-        return dueDate.isBefore(date);
-    }
+    public Product getItem() { return item; }
+    public User getBorrower() { return borrower; }
+    public void setReturnDate(LocalDate date) { this.returnDate = date; }
+    public boolean isOverdue(LocalDate date) { return dueDate.isBefore(date); }
 
     public boolean renew(Policy policy) {
         if (renewCount < policy.getMaxRenewals()) {
@@ -59,5 +49,24 @@ public class Loan {
                 " | Borrower: " + borrower.getName() + " [" + userType + "]" +
                 " | Due: " + dueDate +
                 " | Renewals: " + renewCount;
+    }
+
+    /**
+     * Inner class that calculates and shows a due date reminder for this loan.
+     * Demonstrates nested class encapsulation.
+     */
+    public class Reminder {
+        public void showReminder() {
+            LocalDate today = LocalDate.now();
+            long daysLeft = ChronoUnit.DAYS.between(today, dueDate);
+
+            if (daysLeft > 0) {
+                System.out.println("Reminder: " + daysLeft + " day(s) left until '" + item.getTitle() + "' is due.");
+            } else if (daysLeft == 0) {
+                System.out.println("Reminder: '" + item.getTitle() + "' is due today!");
+            } else {
+                System.out.println("Reminder: '" + item.getTitle() + "' is overdue by " + Math.abs(daysLeft) + " day(s).");
+            }
+        }
     }
 }
