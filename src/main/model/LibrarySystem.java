@@ -27,17 +27,15 @@ public class LibrarySystem {
     // -------------------------------
     public void loadAllData() {
         products.clear();
-
         products.addAll(DataLoader.loadBooks());
         products.addAll(DataLoader.loadCDs());
         products.addAll(DataLoader.loadDVDs());
         products.addAll(DataLoader.loadAudiobooks());
-
         System.out.println("Data successfully loaded from CSV files. Total products: " + products.size());
     }
 
     // -------------------------------
-    // Core Logic
+    // Product Search
     // -------------------------------
     public Product findProductById(int id) {
         return products.stream()
@@ -46,9 +44,19 @@ public class LibrarySystem {
                 .orElse(null);
     }
 
-    /**
-     * Handles borrowing logic, creating a single Loan instance added to both system and user records.
-     */
+    public List<Product> getProductsByCategory(String type) {
+        List<Product> result = new ArrayList<>();
+        for (Product p : products) {
+            if (p.getClass().getSimpleName().equalsIgnoreCase(type)) {
+                result.add(p);
+            }
+        }
+        return result;
+    }
+
+    // -------------------------------
+    // Borrow / Return Handling
+    // -------------------------------
     public void handleBorrow(User user, int productId) {
         Product product = findProductById(productId);
         if (product == null) {
@@ -56,11 +64,12 @@ public class LibrarySystem {
             return;
         }
         if (!product.isAvailable()) {
-            System.out.println("Product is currently not available.");
+            System.out.println("Product is currently checked out.");
             return;
         }
 
         if (user.borrowProduct(product, policy)) {
+            product.setAvailable(false); // Mark as taken
             Loan loan = new Loan(IDGenerator.nextId(), user, product, policy);
             loans.add(loan);
             user.viewLoans().add(loan);
@@ -76,6 +85,7 @@ public class LibrarySystem {
         }
 
         if (user.returnProduct(product)) {
+            product.setAvailable(true); // Mark as available again
             loans.removeIf(l -> l.getItem().equals(product) && l.getBorrower().equals(user));
             System.out.println("Return successful: " + product.getTitle());
         } else {
@@ -87,7 +97,7 @@ public class LibrarySystem {
     // Display Functions
     // -------------------------------
     public void displayAllProducts() {
-        System.out.println("\nAvailable Products:");
+        System.out.println("\nAll Products:");
         if (products.isEmpty()) {
             System.out.println("No products loaded.");
         } else {
@@ -100,26 +110,18 @@ public class LibrarySystem {
         if (loans.isEmpty()) {
             System.out.println("No loans currently registered.");
         } else {
-            for (Loan loan : loans) {
-                System.out.println(loan.getInfo());
-                // Use the nested Reminder class to show due date status
-                Loan.Reminder reminder = loan.new Reminder();
+            for (Loan l : loans) {
+                System.out.println(l.getInfo());
+                Loan.Reminder reminder = l.new Reminder();
                 reminder.showReminder();
             }
         }
     }
 
-
     // -------------------------------
     // Utility
     // -------------------------------
-    public void reloadData() {
-        System.out.println("Reloading data from CSV files...");
-        loadAllData();
-    }
-
     public void removeLoanRecord(Product product, User user) {
         loans.removeIf(l -> l.getItem().equals(product) && l.getBorrower().equals(user));
     }
-
 }

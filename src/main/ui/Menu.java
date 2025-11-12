@@ -85,17 +85,15 @@ public class Menu {
     }
 
     // -------------------------------------------
-    // VIEW PRODUCTS MENU
-    // -------------------------------------------
+// VIEW PRODUCTS MENU
+// -------------------------------------------
     private static void viewProductsMenu() {
         User currentUser = system.getDemoUser();
-
         boolean isAdult = currentUser instanceof AdultUser;
         boolean isStudent = currentUser instanceof Student;
         boolean isChild = currentUser instanceof ChildUser;
 
         System.out.println("\nSelect category to view:");
-
         if (isAdult) {
             System.out.println("1. Books");
             System.out.println("2. CDs");
@@ -106,70 +104,49 @@ public class Menu {
             System.out.println("2. Audiobooks");
         } else if (isChild) {
             System.out.println("1. Books");
-        } else {
-            System.out.println("Invalid user type.");
-            return;
         }
 
         System.out.print("Enter option: ");
         int opt = readInt();
 
-        List<? extends Product> categoryList = new ArrayList<>();
+        String category = switch (opt) {
+            case 1 -> "Book";
+            case 2 -> (isAdult ? "CD" : "Audiobook");
+            case 3 -> "DVD";
+            case 4 -> "Audiobook";
+            default -> null;
+        };
 
-        if (isAdult) {
-            switch (opt) {
-                case 1 -> categoryList = DataLoader.loadBooks();
-                case 2 -> categoryList = DataLoader.loadCDs();
-                case 3 -> categoryList = DataLoader.loadDVDs();
-                case 4 -> categoryList = DataLoader.loadAudiobooks();
-                default -> {
-                    System.out.println("Invalid option.");
-                    return;
-                }
-            }
-        } else if (isStudent) {
-            switch (opt) {
-                case 1 -> categoryList = DataLoader.loadBooks();
-                case 2 -> categoryList = DataLoader.loadAudiobooks();
-                default -> {
-                    System.out.println("Invalid option.");
-                    return;
-                }
-            }
-        } else if (isChild) {
-            if (opt == 1) {
-                categoryList = DataLoader.loadBooks();
-            } else {
-                System.out.println("Invalid option.");
-                return;
-            }
+        if (category == null) {
+            System.out.println("Invalid option.");
+            return;
         }
 
-        if (categoryList.isEmpty()) {
+        List<Product> list = system.getProductsByCategory(category);
+        if (list.isEmpty()) {
             System.out.println("No products available in this category.");
             return;
         }
 
-        System.out.println("\nAvailable items:");
-        categoryList.stream()
-                .filter(Product::isAvailable)
-                .forEach(p -> System.out.println(p.getInfo()));
+        System.out.println("\n" + category + "s in Library:");
+        for (Product p : list) {
+            System.out.println(p.getInfo());
+        }
     }
 
+
     // -------------------------------------------
-    // BORROW PRODUCT MENU (ROLE-BASED)
-    // -------------------------------------------
+// BORROW PRODUCT MENU (ROLE-BASED)
+// -------------------------------------------
     private static void borrowMenu() {
         User currentUser = system.getDemoUser();
 
         System.out.println("\n===== Borrow Product =====");
-
         boolean isAdult = currentUser instanceof AdultUser;
         boolean isStudent = currentUser instanceof Student;
         boolean isChild = currentUser instanceof ChildUser;
 
         System.out.println("Select a category to borrow from:");
-
         if (isAdult) {
             System.out.println("1. Book");
             System.out.println("2. CD");
@@ -180,60 +157,43 @@ public class Menu {
             System.out.println("2. Audiobook");
         } else if (isChild) {
             System.out.println("1. Book");
-        } else {
-            System.out.println("Invalid user type.");
-            return;
         }
 
         System.out.print("Enter option: ");
         int opt = readInt();
 
-        List<? extends Product> categoryList = new ArrayList<>();
+        String category = switch (opt) {
+            case 1 -> "Book";
+            case 2 -> (isAdult ? "CD" : "Audiobook");
+            case 3 -> "DVD";
+            case 4 -> "Audiobook";
+            default -> null;
+        };
 
-        if (isAdult) {
-            switch (opt) {
-                case 1 -> categoryList = DataLoader.loadBooks();
-                case 2 -> categoryList = DataLoader.loadCDs();
-                case 3 -> categoryList = DataLoader.loadDVDs();
-                case 4 -> categoryList = DataLoader.loadAudiobooks();
-                default -> {
-                    System.out.println("Invalid option.");
-                    return;
-                }
-            }
-        } else if (isStudent) {
-            switch (opt) {
-                case 1 -> categoryList = DataLoader.loadBooks();
-                case 2 -> categoryList = DataLoader.loadAudiobooks();
-                default -> {
-                    System.out.println("Invalid option.");
-                    return;
-                }
-            }
-        } else if (isChild) {
-            if (opt == 1) {
-                categoryList = DataLoader.loadBooks();
-            } else {
-                System.out.println("Invalid option.");
-                return;
-            }
-        }
-
-        if (categoryList.isEmpty()) {
-            System.out.println("No products available in this category.");
+        if (category == null) {
+            System.out.println("Invalid option.");
             return;
         }
 
-        System.out.println("\nAvailable items:");
-        categoryList.stream()
-                .filter(Product::isAvailable)
-                .forEach(p -> System.out.println(p.getInfo()));
+        List<Product> list = system.getProductsByCategory(category);
+        List<Product> available = new ArrayList<>();
+        for (Product p : list) {
+            if (p.isAvailable()) available.add(p);
+        }
+
+        if (available.isEmpty()) {
+            System.out.println("No available items in this category.");
+            return;
+        }
+
+        System.out.println("\nAvailable " + category + "s:");
+        available.forEach(p -> System.out.println(p.getInfo()));
 
         System.out.print("\nEnter Product ID to borrow: ");
         int id = readInt();
-
-        system.handleBorrow(system.getDemoUser(), id);
+        system.handleBorrow(currentUser, id);
     }
+
 
     // -------------------------------------------
     // RETURN PRODUCT MENU
