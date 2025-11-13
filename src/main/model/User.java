@@ -4,60 +4,172 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-/** Base abstract class for library users. */
+/**
+ * Abstract base class representing a user of the library system.
+ * <p>
+ * The {@code User} class provides shared properties and behaviours
+ * for all types of library users (e.g., {@link AdultUser},
+ * {@link ChildUser}, {@link Student}, {@link Librarian}).
+ * </p>
+ * <p>
+ * This class demonstrates several key OOP principles:
+ * <ul>
+ *   <li><b>Abstraction:</b> Defines generic user behaviour for all subclasses.</li>
+ *   <li><b>Encapsulation:</b> Protects user data with controlled access through getters.</li>
+ *   <li><b>Polymorphism:</b> Enables subclasses to override methods such as
+ *       {@link #borrowProduct(Product, Policy)} for custom borrowing rules.</li>
+ * </ul>
+ * </p>
+ */
 public abstract class User {
+
+    /** Unique identifier for the user. */
     protected int userId;
+
+    /** Full name of the user. */
     protected String name;
+
+    /** Contact email of the user. */
     protected String email;
+
+    /** List of loans currently held by this user. */
     protected List<Loan> loans = new ArrayList<>();
 
+    /**
+     * Constructs a new {@code User} object with the specified attributes.
+     *
+     * @param userId unique identifier for the user
+     * @param name   the full name of the user
+     * @param email  the contact email address of the user
+     */
     public User(int userId, String name, String email) {
         this.userId = userId;
         this.name = name;
         this.email = email;
     }
 
-    public int getUserId() { return userId; }
-    public String getName() { return name; }
-    public String getEmail() { return email; }
+    // -------------------------------------------
+    // GETTERS
+    // -------------------------------------------
 
     /**
-     * Handles borrowing a product.
-     * The Loan object is created externally (in LibrarySystem) to maintain consistent IDs.
+     * Retrieves the unique identifier of the user.
+     *
+     * @return the user ID
+     */
+    public int getUserId() {
+        return userId;
+    }
+
+    /**
+     * Retrieves the user's full name.
+     *
+     * @return the user's name
+     */
+    public String getName() {
+        return name;
+    }
+
+    /**
+     * Retrieves the user's email address.
+     *
+     * @return the user's email
+     */
+    public String getEmail() {
+        return email;
+    }
+
+    // -------------------------------------------
+    // BORROWING BEHAVIOUR
+    // -------------------------------------------
+
+    /**
+     * Handles the process of borrowing a product.
+     * <p>
+     * By default, this method checks the availability of the item and marks it
+     * as borrowed. Subclasses such as {@link ChildUser} or {@link Student}
+     * override this method to apply role-specific borrowing limits and policies.
+     * </p>
+     * <p>
+     * The corresponding {@link Loan} object is created externally within
+     * {@link LibrarySystem} to ensure consistent loan IDs and centralised
+     * management of borrowing records.
+     * </p>
+     *
+     * @param product the {@link Product} being borrowed
+     * @param policy  the {@link Policy} defining the loan rules
+     * @return {@code true} if borrowing succeeds; {@code false} if unavailable
      */
     public boolean borrowProduct(Product product, Policy policy) {
         if (!product.isAvailable()) {
             System.out.println("Product not available.");
             return false;
         }
+
+        // Mark the product as unavailable once borrowed.
         product.setAvailable(false);
         System.out.println("Borrowed successfully: " + product.getTitle());
         return true;
     }
 
+    // -------------------------------------------
+    // RETURNING BEHAVIOUR
+    // -------------------------------------------
+
     /**
-     * Returns a borrowed product if found and removes the corresponding loan.
+     * Handles the return of a borrowed product.
+     * <p>
+     * When a product is returned, it is marked as available again and the
+     * corresponding {@link Loan} record is removed from this user's loan list.
+     * </p>
+     *
+     * @param product the {@link Product} to be returned
+     * @return {@code true} if the product was successfully returned,
+     *         {@code false} if the loan record was not found
      */
     public boolean returnProduct(Product product) {
         Iterator<Loan> iterator = loans.iterator();
+
+        // Search for a matching loan in the user's loan list.
         while (iterator.hasNext()) {
             Loan loan = iterator.next();
             if (loan.getItem().equals(product)) {
+                // Update return date and availability status.
                 loan.setReturnDate(java.time.LocalDate.now());
                 product.setAvailable(true);
-                iterator.remove(); // remove from user's list
+                iterator.remove(); // Remove from user's loan list
                 System.out.println("Returned: " + product.getTitle());
                 return true;
             }
         }
+
         System.out.println("Loan not found for: " + product.getTitle());
         return false;
     }
 
+    // -------------------------------------------
+    // LOAN VIEWING
+    // -------------------------------------------
+
+    /**
+     * Retrieves all loans currently held by the user.
+     *
+     * @return a list of {@link Loan} objects associated with this user
+     */
     public List<Loan> viewLoans() {
         return loans;
     }
 
+    // -------------------------------------------
+    // STRING REPRESENTATION
+    // -------------------------------------------
+
+    /**
+     * Returns a formatted string representation of this user,
+     * displaying the ID, name, and email address.
+     *
+     * @return a string containing basic user details
+     */
     @Override
     public String toString() {
         return userId + " - " + name + " (" + email + ")";
