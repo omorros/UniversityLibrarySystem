@@ -52,32 +52,14 @@ public abstract class User {
     // GETTERS
     // -------------------------------------------
 
-    /**
-     * Retrieves the unique identifier of the user.
-     *
-     * @return the user ID
-     */
-    public int getUserId() {
-        return userId;
-    }
+    /** Retrieves the unique identifier of the user. */
+    public int getUserId() { return userId; }
 
-    /**
-     * Retrieves the user's full name.
-     *
-     * @return the user's name
-     */
-    public String getName() {
-        return name;
-    }
+    /** Retrieves the user's full name. */
+    public String getName() { return name; }
 
-    /**
-     * Retrieves the user's email address.
-     *
-     * @return the user's email
-     */
-    public String getEmail() {
-        return email;
-    }
+    /** Retrieves the user's email address. */
+    public String getEmail() { return email; }
 
     // -------------------------------------------
     // BORROWING BEHAVIOUR
@@ -91,9 +73,9 @@ public abstract class User {
      * override this method to apply role-specific borrowing limits and policies.
      * </p>
      * <p>
-     * The corresponding {@link Loan} object is created externally within
-     * {@link LibrarySystem} to ensure consistent loan IDs and centralised
-     * management of borrowing records.
+     * The corresponding {@link Loan} object is now created directly inside this method
+     * to ensure consistent behaviour across the entire system, including when tests
+     * or other components call this method without using {@link LibrarySystem}.
      * </p>
      *
      * @param product the {@link Product} being borrowed
@@ -108,6 +90,11 @@ public abstract class User {
 
         // Mark the product as unavailable once borrowed.
         product.setAvailable(false);
+
+        // Create a loan and store it in the user's loan list.
+        Loan loan = new Loan(IDGenerator.nextId(), this, product, policy);
+        loans.add(loan);
+
         System.out.println("Borrowed successfully: " + product.getTitle());
         return true;
     }
@@ -151,25 +138,14 @@ public abstract class User {
     // LOAN VIEWING
     // -------------------------------------------
 
-    /**
-     * Retrieves all loans currently held by the user.
-     *
-     * @return a list of {@link Loan} objects associated with this user
-     */
-    public List<Loan> viewLoans() {
-        return loans;
-    }
+    /** Retrieves all loans currently held by the user. */
+    public List<Loan> viewLoans() { return loans; }
 
     // -------------------------------------------
     // STRING REPRESENTATION
     // -------------------------------------------
 
-    /**
-     * Returns a formatted string representation of this user,
-     * displaying the ID, name, and email address.
-     *
-     * @return a string containing basic user details
-     */
+    /** Returns a formatted string representation of this user. */
     @Override
     public String toString() {
         return userId + " - " + name + " (" + email + ")";
